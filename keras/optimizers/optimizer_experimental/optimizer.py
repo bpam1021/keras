@@ -490,7 +490,12 @@ class _BaseOptimizer(tf.Module):
                 self._learning_rate(self.iterations)
             )
         grads_and_vars = optimizer_utils.filter_empty_gradients(grads_and_vars)
-        grads, trainable_variables = zip(*grads_and_vars)
+        try:
+            grads, trainable_variables = zip(*grads_and_vars)
+        except:
+            # It is possible that the grad is None, then grads_and_vars
+            # cannot be unzipped. In this case, `apply_gradients` is a no-op.
+            return
         scope_name = self._name or "optimizer"
         with tf.name_scope(scope_name):
             with tf.init_scope():
